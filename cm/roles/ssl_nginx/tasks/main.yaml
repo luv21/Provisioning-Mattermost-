@@ -1,0 +1,58 @@
+---
+
+
+- name: Stopping the  NGINX service
+  become: yes
+  systemd:
+    name: nginx
+    state: stopped
+
+
+- name: Creating folder for saving SSL configuration
+  become: yes
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+
+- name: Installing openssl
+  become: yes
+  apt:
+    name: openssl
+    state: present
+
+- name: Generate a  OpenSSL certificate
+  become: yes
+  shell:
+    cmd: openssl req -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=lkhuran.mattermost.com" -keyout /etc/nginx/ssl/mattermost.key -out /etc/nginx/ssl/mattermost.crt
+
+- name: Changing the permission of mattermost.key 
+  become: yes
+  file:
+    path: /etc/nginx/ssl/mattermost.key
+    mode: '0400'
+
+- name: Creating configuration file for mattermost server
+  become: yes
+  template:
+    src: matter.j2
+    dest: /etc/nginx/sites-available/mattermost
+  
+- name: Deleting the default the NGINX configuration file
+  become: yes
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Creating  softlink for new the new configuration file
+  become: yes
+  file:
+    src: /etc/nginx/sites-available/mattermost
+    dest: /etc/nginx/sites-enabled/mattermost
+    state: link
+
+- name: Restarting NGINX service
+  become: yes
+  systemd:
+    name: nginx
+    state: restarted
+

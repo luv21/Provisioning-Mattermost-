@@ -4,10 +4,10 @@
 
 - hosts: mattermost
   roles:
-    - ping
-    - update
-    - database
-    - mattermost
-    - teams
-    - proxy_nginx
+    # - ping
+    # - update
+    # - database
+    # - mattermost
+    # - teams
+    # - proxy_nginx
     - ssl_nginx

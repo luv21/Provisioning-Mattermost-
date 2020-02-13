@@ -1,0 +1,5 @@
+mysql_db_name: mattermostdb
+mysql_username: newuser
+mysql_password: newpassword
+mysql_user_login: root
+mysql_root_pass: new30

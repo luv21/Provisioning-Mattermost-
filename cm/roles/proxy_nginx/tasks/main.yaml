@@ -14,7 +14,7 @@
 - name: Creating configuration file for Mattermost
   become: yes
   template:
-    src: mattermost.j2
+    src: matter.j2
     dest: /etc/nginx/sites-available/mattermost
   
 - name: Deleting default NGINX config file

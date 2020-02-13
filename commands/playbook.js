@@ -9,17 +9,33 @@ exports.command = 'playbook <file> <inventory>';
 exports.desc = 'Run provided playbook with given inventory';
 exports.builder = yargs => {
     yargs.options({
+	vaultpass: {
+            alias: 'lk30',
+            describe: 'the password to use for ansible vault',
+            default: 'lkhuran',
+            type: 'string',
+            nargs: 1
+        }    
     });
 };
 
 
+exports.command = 'playbook <file> <inventory>';
+exports.desc = 'Run provided playbook with given inventory';
+exports.builder = yargs => {
+    yargs.options({
+    });
+};
+
+
+
 exports.handler = async argv => {
-    const { file, inventory } = argv;
+    const { file, inventory, vaultpass } = argv;
 
     (async () => {
 
         if (fs.existsSync(path.resolve(file)) && fs.existsSync(path.resolve(inventory))) {
-            await run(file, inventory);
+            await run(file, inventory, vaultpass);
         }
 
         else {
@@ -30,7 +46,7 @@ exports.handler = async argv => {
 
 };
 
-async function run(file, inventory) {
+async function run(file, inventory, vaultpass) {
 
     // the paths should be from root of cm directory
     // Transforming path of the files in host to the path in VM's shared folder

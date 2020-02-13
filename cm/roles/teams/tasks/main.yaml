@@ -1,0 +1,15 @@
+- name: Creating User on Mattermost
+  become: yes
+  shell: 
+    cmd: /opt/mattermost/bin/mattermost user create --email '{{matter_email}}'  --username '{{matter_user}}' --password '{{matter_pass}}'
+
+- name: Creating Team on Mattermost
+  become: yes
+  shell: 
+    cmd: /opt/mattermost/bin/mattermost team create --name '{{team_name}}' --display_name '{{display_name}}'
+
+
+- name: Adding team on mattermost
+  become: yes
+  shell: 
+    cmd: /opt/mattermost/bin/mattermost team add '{{team_name}}' '{{matter_email}}' '{{matter_user}}'

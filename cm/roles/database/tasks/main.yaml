@@ -1,0 +1,75 @@
+- name: Install Mysql
+  become: yes
+  apt: pkg=mysql-server state=latest
+
+
+- name: Start the MySQL service
+  become: yes
+  systemd: 
+    name: mysql 
+    state: started
+
+- name: Installing Pip3
+  become: yes
+  apt:
+    name: python3-pip
+    state: present
+
+- name: Installing PyMySQL module
+  become: yes
+  pip:
+    name: pymysql
+    state: present
+
+- name: Setting up the  password for root account
+  become: yes
+  mysql_user:
+    login_user: root
+    login_password: ''
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    check_implicit_admin: yes
+    name: root
+    password: '{{mysql_root_pass}}'
+   
+
+- name: Remove root accounts, accessible from outside the localhost
+  mysql_user:
+    login_user: '{{mysql_user_login}}'
+    login_password: '{{mysql_root_pass}}'
+    name: root
+    host: "!localhost"
+    state: absent
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Removing anonymous users
+  mysql_user:
+    login_user: '{{mysql_user_login}}'
+    login_password: '{{mysql_root_pass}}'
+    name: ''
+    state: absent
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Removing the test database
+  mysql_db:
+    login_user: '{{mysql_user_login}}'
+    login_password: '{{mysql_root_pass}}'
+    name: test
+    state: absent
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Creating the mattermost database
+  mysql_db:
+    login_user: '{{mysql_user_login}}'
+    login_password: '{{mysql_root_pass}}'
+    name: '{{mysql_db_name}}'
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Creating the mattermost user with all access privilages
+  mysql_user:
+    login_user: '{{mysql_user_login}}'
+    login_password: '{{mysql_root_pass}}'
+    name: '{{mysql_username}}'
+    password: '{{mysql_password}}'
+    priv: '*.*:ALL'
+    state: present

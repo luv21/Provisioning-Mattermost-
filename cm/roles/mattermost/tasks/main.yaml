@@ -1,0 +1,84 @@
+---
+
+
+- name: Installing unzip module
+  become: yes
+  apt:
+    name: unzip
+    state: present
+
+
+- name: Downloading the latest version of the Mattermost server
+  get_url:
+    url: https://releases.mattermost.com/5.19.1/mattermost-5.19.1-linux-amd64.tar.gz
+    dest: /home/vagrant
+
+- name: Extracting all mattermost server files
+  become: yes
+  unarchive:
+    src: /home/vagrant/mattermost-5.19.1-linux-amd64.tar.gz
+    dest: /opt/
+    remote_src: yes
+ 
+
+
+- name: Storage directory creation for files
+  become: yes
+  file:
+    path: /opt/mattermost/data
+    state: directory
+
+
+- name: Mattermost system user and group creation
+  become: yes
+  user:
+    name: mattermost
+
+- name: Set the user and group mattermost as the owner of mattermost files
+  become: yes
+  file:
+    path: /opt/mattermost
+    owner: mattermost
+    group: mattermost
+    mode: g+w
+    recurse: yes
+
+- name: Database driver setup
+  become: yes
+  template:
+    src: config.json.j2
+    dest: /opt/mattermost/config/config.json
+
+- name: Changing the location and state the server
+  become: yes
+  become_user: mattermost
+  shell:
+    cmd: /opt/mattermost/bin/mattermost &
+
+- name: Setting up systemd for starting and stopping mattermost
+  become: yes
+  file:
+    path: /lib/systemd/system/mattermost.service
+    state: touch
+
+- name: Creating systemd mattermost service file
+  become: yes
+  template:
+    src: mattermost.service.j2
+    dest: /lib/systemd/system/mattermost.service
+
+- name: Enable systemd to re-read configs
+  become: yes
+  systemd:
+    daemon_reload: yes
+
+- name: Starting  mattermost service
+  become: yes
+  systemd:
+    name: mattermost.service
+    state: started
+    enabled: yes
+
+
+  
+  

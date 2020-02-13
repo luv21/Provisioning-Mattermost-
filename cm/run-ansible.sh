@@ -18,4 +18,11 @@ function die {
 PLAYBOOK=$1
 INVENTORY=$2
 
-ansible-playbook $PLAYBOOK -i $INVENTORY
+VAULT_PWD=$3
+
+if [ $VAULT_PWD = "lkhuran" ]
+then
+	echo "lkhuran" | ansible-playbook $PLAYBOOK -i $INVENTORY --ask-vault-pass
+else
+	ansible-playbook $PLAYBOOK -i $INVENTORY --ask-vault-pass
+fi
